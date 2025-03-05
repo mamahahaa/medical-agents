@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Mode Switch Buttons -->
+        <div class="mode-switch">
+            <button id="chat-mode-btn" class="mode-btn active">Chat Assistant</button>
+            <button id="image-mode-btn" class="mode-btn">Medical Image Analysis</button>
+            <button id="diagnosis-mode-btn" class="mode-btn">Multi-Agent Diagnosis</button>
+            <button id="browser-mode-btn" class="mode-btn">Browser Assistant</button>
+            <button id="deep-search-mode-btn" class="mode-btn">Deep Search</button>
+        </div>
+
+        <!-- Chat Interface -->
+        <div id="chat-interface" class="chat-container">
+            <div class="chat-header">
+                <h1>Hospital AI Assistant</h1>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message system">
+                    Welcome to the Hospital AI Assistant. How can I help you today?
+                </div>
+            </div>
+            <div class="chat-input">
+                <div class="input-container">
+                    <input type="text" id="message-input" placeholder="Type your message...">
+                    <label for="image-upload" class="image-upload-label">
+                        <img src="{{ url_for('static', filename='img/image-icon.svg') }}" alt="Upload Image">
+                    </label>
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                </div>
+                <button id="send-button">
+                    <span class="button-text">Send</span>
+                    <div class="loading-spinner"></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Medical Image Analysis Interface -->
+        <div id="image-analysis-interface" class="image-analysis-container" style="display: none;">
+            <div class="analysis-header">
+                <h1>Medical Image Analysis</h1>
+            </div>
+            <div class="analysis-content">
+                <iframe id="gradio-frame" src="https://2a44bb1a28317d2c8b.gradio.live" frameborder="0"></iframe>
+            </div>
+        </div>
+
+        <!-- Multi-Agent Diagnosis Interface -->
+        <div id="diagnosis-interface" class="diagnosis-container" style="display: none;">
+            <div class="diagnosis-header">
+                <h1>Multi-Agent Medical Diagnosis</h1>
+            </div>
+            <div class="diagnosis-content">
+                <div class="patient-info-section">
+                    <h2>Patient Information</h2>
+                    <div class="input-group">
+                        <label>Basic Information:</label>
+                        <textarea id="basic-info" placeholder="Enter patient's basic information (age, gender, etc.)"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Symptoms:</label>
+                        <textarea id="symptoms" placeholder="Describe the patient's symptoms"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Medical History:</label>
+                        <textarea id="medical-history" placeholder="Enter patient's medical history"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Current Medications:</label>
+                        <textarea id="medications" placeholder="List current medications"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Vital Signs:</label>
+                        <textarea id="vital-signs" placeholder="Enter vital signs (if available)"></textarea>
+                    </div>
+                    <button id="start-diagnosis" class="diagnosis-btn">Start Diagnosis</button>
+                </div>
+                <div class="diagnosis-results">
+                    <h2>Diagnosis Process</h2>
+                    <div id="diagnosis-log" class="diagnosis-log"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Browser Assistant Interface -->
+        <div id="browser-interface" class="browser-container" style="display: none;">
+            <div class="browser-header">
+                <h1>Browser Assistant</h1>
+            </div>
+            <div class="browser-content">
+                <div class="browser-input-section">
+                    <div class="input-group">
+                        <label>Task Description:</label>
+                        <textarea id="browser-task" placeholder="Describe what you want the browser to do (e.g., 'Find flights from New York to London for next week')"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Reference File (Optional):</label>
+                        <div class="file-upload-container">
+                            <input type="file" id="browser-file" accept=".pdf,.doc,.docx,.txt">
+                            <div class="file-upload-box" id="file-drop-zone">
+                                Drag & drop a file here or click to select
+                                <span class="file-name" id="file-name"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Model:</label>
+                        <select id="browser-model">
+                            <option value="gpt-4o-mini">GPT-4-Mini</option>
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            <option value="deepseek-chat">Deepseek Chat</option>
+                        </select>
+                    </div>
+                    <div class="input-group checkbox">
+                        <label>
+                            <input type="checkbox" id="browser-headless" checked>
+                            Run Headless
+                        </label>
+                    </div>
+                    <button id="start-browser-task" class="browser-btn">Start Task</button>
+                </div>
+                <div class="browser-results">
+                    <h2>Task Results</h2>
+                    <div id="browser-log" class="browser-log"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deep Search Interface -->
+        <div id="deep-search-interface" class="deep-search-container" style="display: none;">
+            <div class="deep-search-header">
+                <h1>Deep Research Assistant</h1>
+            </div>
+            <div class="deep-search-content">
+                <div class="search-input-section">
+                    <div class="input-group">
+                        <label>Research Topic:</label>
+                        <textarea id="research-topic" placeholder="Enter your research topic"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>LLM Model:</label>
+                        <select id="llm-model">
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="gpt">GPT</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Search API:</label>
+                        <select id="search-api">
+                            <option value="tavily">Tavily</option>
+                            <option value="perplexity">Perplexity</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Research Loops:</label>
+                        <input type="number" id="research-loops" min="1" max="10" value="3">
+                    </div>
+                    <button id="start-research" class="deep-search-btn">Start Research</button>
+                </div>
+                <div class="research-results">
+                    <h2>Research Results</h2>
+                    <div id="research-log" class="research-log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 
